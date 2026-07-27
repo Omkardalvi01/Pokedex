@@ -1,4 +1,4 @@
-# PokeGo TUI
+# Pokedex TUI
 
 
 
