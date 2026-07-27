@@ -44,8 +44,13 @@ type Physical struct {
 }
 
 type Imgs struct {
-	Front_img image.Image
-	Back_img  image.Image
-	Front     string `json:"front_default"`
-	Back      string `json:"back_default"`
+	Front_img  image.Image
+	Back_img   image.Image
+	Shinyf_img image.Image
+	Shinyb_img image.Image
+
+	Front  string `json:"front_default"`
+	Back   string `json:"back_default"`
+	Shinyf string `json:"front_shiny"`
+	Shinyb string `json:"back_shiny"`
 }

@@ -14,11 +14,12 @@ import (
 type Model struct {
 	Search string
 	Curr   Pokemon
+	Normal bool
 	Cursor string
 }
 
 func InitialModel() Model {
-	return searchPokemon(Model{Search: "lucario", Cursor: "_"})
+	return searchPokemon(Model{Search: "lucario", Cursor: "_", Normal: true})
 }
 
 func (m Model) Init() tea.Cmd {
@@ -37,6 +38,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if len(m.Search) > 0 {
 				m.Search = m.Search[:len(m.Search)-1]
 			}
+		case "tab":
+			m.Normal = !m.Normal
 		default:
 			if len(msg.String()) > 0 {
 				m.Search += msg.String()
@@ -49,22 +52,50 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m Model) View() string {
 	top := "Pokedex\n"
 
-	Front_img := ToString(60, m.Curr.Pic.Front_img)
-	Back_img := ToString(60, m.Curr.Pic.Back_img)
+	Front_img := ""
+	Back_img := ""
+	if m.Normal {
+		Front_img = ToString(55, m.Curr.Pic.Front_img)
+		Back_img = ToString(55, m.Curr.Pic.Back_img)
 
-	img_style := lipgloss.NewStyle().Width(62).Border(lipgloss.NormalBorder())
+	} else {
+		Front_img = ToString(55, m.Curr.Pic.Shinyf_img)
+		Back_img = ToString(55, m.Curr.Pic.Shinyb_img)
+	}
+
+	img_style := lipgloss.NewStyle().Width(60).Border(lipgloss.NormalBorder())
 	Front_render := img_style.Render(Front_img)
 	Back_render := img_style.Render(Back_img)
 
 	Leftsection := lipgloss.JoinHorizontal(lipgloss.Top, Front_render, Back_render)
-	leftStyle := lipgloss.NewStyle().Width(130).Border(lipgloss.NormalBorder())
+	leftStyle := lipgloss.NewStyle().Width(125).Border(lipgloss.NormalBorder())
 	leftrender := leftStyle.Render(Leftsection)
 
 	search := fmt.Sprintf("> %s%s\n", m.Search, m.Cursor)
 	searchStyle := lipgloss.NewStyle().Width(38).Border(lipgloss.RoundedBorder()).Height(0)
-	Rightsection := searchStyle.Render(search) + "\n"
+	Rightsection := searchStyle.Render(search)
 
-	Rightsection += fmt.Sprintf("%s\n", m.Curr.Name)
+	name := fmt.Sprintf("%s", m.Curr.Name)
+	nameStyle := lipgloss.NewStyle().AlignHorizontal(lipgloss.Center).Bold(true).Width(38)
+	Rightsection += nameStyle.Render(name) + "\n"
+
+	Shiny_mode := "Shiny"
+	Normal_mode := "Normal"
+	selected := lipgloss.NewStyle().Background(lipgloss.Color("#689d6a")).Border(lipgloss.HiddenBorder()).Foreground(lipgloss.Color("#f9f5d7"))
+	nselected := lipgloss.NewStyle().Border(lipgloss.HiddenBorder())
+	center_pos := lipgloss.NewStyle().AlignHorizontal(lipgloss.Center)
+	if m.Normal {
+		shiny_render := nselected.Render(Shiny_mode)
+		normal_render := selected.Render(Normal_mode)
+		modes := lipgloss.JoinHorizontal(lipgloss.Top, normal_render, shiny_render)
+		Rightsection += center_pos.Render(modes) + "\n"
+	} else {
+		shiny_render := selected.Render(Shiny_mode)
+		normal_render := nselected.Render(Normal_mode)
+		modes := lipgloss.JoinHorizontal(lipgloss.Top, normal_render, shiny_render)
+		Rightsection += center_pos.Render(modes) + "\n"
+	}
+
 	Rightsection += "Abilities\n"
 	for _, ability := range m.Curr.Abilities {
 		Rightsection += fmt.Sprintf("  - %s\n", ability.Details.Name)

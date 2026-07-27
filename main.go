@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -62,8 +63,6 @@ func searchPokemon(m Model) Model {
 	}
 	defer front_img.Body.Close()
 
-	pokemon.Pic.Front_img = RenderImg(front_img.Body)
-
 	back_img, err := client.Get(pokemon.Pic.Back)
 	if err != nil {
 		fmt.Print(err)
@@ -71,8 +70,38 @@ func searchPokemon(m Model) Model {
 	}
 	defer back_img.Body.Close()
 
-	pokemon.Pic.Back_img = RenderImg(back_img.Body)
+	shiny_front, err := client.Get(pokemon.Pic.Shinyf)
+	if err != nil {
+		fmt.Print(err)
+		os.Exit(1)
+	}
+	defer shiny_front.Body.Close()
 
+	shiny_back, err := client.Get(pokemon.Pic.Shinyb)
+	if err != nil {
+		fmt.Print(err)
+		os.Exit(1)
+	}
+	defer shiny_back.Body.Close()
+
+	var wg sync.WaitGroup
+
+	Renderjobs := []func(){
+		func() { pokemon.Pic.Front_img = RenderImg(front_img.Body) },
+		func() { pokemon.Pic.Back_img = RenderImg(back_img.Body) },
+		func() { pokemon.Pic.Shinyf_img = RenderImg(shiny_front.Body) },
+		func() { pokemon.Pic.Shinyb_img = RenderImg(shiny_back.Body) },
+	}
+
+	wg.Add(4)
+	for _, job := range Renderjobs {
+		go func(j func()) {
+			j()
+			wg.Done()
+		}(job)
+	}
+
+	wg.Wait()
 	m.Curr = pokemon
 	m.Search = ""
 	return m
