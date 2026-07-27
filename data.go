@@ -1,5 +1,7 @@
 package main
 
+import "image"
+
 type Pokemon struct {
 	Name      string    `json:"name"`
 	Height    int       `json:"height"`
@@ -8,7 +10,7 @@ type Pokemon struct {
 	MoveSet   []Moves   `json:"moves"`
 	Types     []Type    `json:"types"`
 	Stats     []Stat    `json:"stats"`
-	Imgpaths  ImgPath   `json:"sprites"`
+	Pic       Imgs      `json:"sprites"`
 }
 
 type Ability struct {
@@ -41,7 +43,9 @@ type Physical struct {
 	Weight int `json:"weight"`
 }
 
-type ImgPath struct {
-	Front string `json:"front_default"`
-	Back  string `json:"back_default"`
+type Imgs struct {
+	Front_img image.Image
+	Back_img  image.Image
+	Front     string `json:"front_default"`
+	Back      string `json:"back_default"`
 }
