@@ -12,7 +12,12 @@ To run this project, do the following:
 * git clone this repo
 * in your terminal `cd pokedex`
 * then `go build . -o pokedex`
-* finally just write the name of the pokeomon then press enter
+
+## Commands
+
+* Enter - Search pokemon from search
+* Tab - Switch to shiny 
+* Ctrl + C - Exit
 
 ## Libraries Used
 
