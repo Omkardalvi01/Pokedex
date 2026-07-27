@@ -1,6 +1,10 @@
 # PokeGo TUI
 
 
+
+https://github.com/user-attachments/assets/7962c60e-d0cf-4491-8851-b8c8cdedcbc6
+
+
 ## How to run this project
 
 To run this project, do the following:
