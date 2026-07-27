@@ -14,10 +14,11 @@ import (
 type Model struct {
 	Search string
 	Curr   Pokemon
+	Cursor string
 }
 
 func InitialModel() Model {
-	return searchPokemon(Model{Search: "pikachu"})
+	return searchPokemon(Model{Search: "lucario", Cursor: "_"})
 }
 
 func (m Model) Init() tea.Cmd {
@@ -46,49 +47,75 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	v := "Pokedex\n"
-	v += fmt.Sprintf("> %s\n", m.Search)
+	top := "Pokedex\n"
 
-	v += fmt.Sprintf("%s\n", m.Curr.Name)
-	v += ToString(m.Curr.Pic.Front_img)
-	// v += ToString(30, m.Curr.Pic.Back_img)
+	Front_img := ToString(60, m.Curr.Pic.Front_img)
+	Back_img := ToString(60, m.Curr.Pic.Back_img)
 
-	v += "Abilities\n"
+	img_style := lipgloss.NewStyle().Width(62).Border(lipgloss.NormalBorder())
+	Front_render := img_style.Render(Front_img)
+	Back_render := img_style.Render(Back_img)
+
+	Leftsection := lipgloss.JoinHorizontal(lipgloss.Top, Front_render, Back_render)
+	leftStyle := lipgloss.NewStyle().Width(130).Border(lipgloss.NormalBorder())
+	leftrender := leftStyle.Render(Leftsection)
+
+	search := fmt.Sprintf("> %s%s\n", m.Search, m.Cursor)
+	searchStyle := lipgloss.NewStyle().Width(38).Border(lipgloss.RoundedBorder()).Height(0)
+	Rightsection := searchStyle.Render(search) + "\n"
+
+	Rightsection += fmt.Sprintf("%s\n", m.Curr.Name)
+	Rightsection += "Abilities\n"
 	for _, ability := range m.Curr.Abilities {
-		v += fmt.Sprintf("  - %s\n", ability.Details.Name)
+		Rightsection += fmt.Sprintf("  - %s\n", ability.Details.Name)
 	}
-	v += "Types\n"
+	Rightsection += "Types\n"
 	for _, t := range m.Curr.Types {
-		v += fmt.Sprintf("  - %s\n", t.Details.Name)
+		Rightsection += fmt.Sprintf("  - %s\n", t.Details.Name)
 	}
-	return v
-}
-func ToString(img image.Image) string {
-	width := 50
 
+	Rightsection += "Stats\n"
+	for _, stat := range m.Curr.Stats {
+		Rightsection += fmt.Sprintf(" - %s:%d\n", stat.Stat.Name, stat.Base)
+	}
+
+	Rightsection += "Moves\n"
+	for i, move := range m.Curr.MoveSet {
+		if i > 5 {
+			break
+		}
+		Rightsection += fmt.Sprintf(" - %s\n", move.Move.Name)
+	}
+
+	rightStyle := lipgloss.NewStyle().Width(40).Border(lipgloss.NormalBorder())
+
+	rightrender := rightStyle.Render(Rightsection)
+	bottom := lipgloss.JoinHorizontal(lipgloss.Top, leftrender, rightrender)
+
+	return lipgloss.JoinVertical(lipgloss.Center, top, bottom)
+}
+
+func ToString(width int, img image.Image) string {
 	img = imaging.Resize(img, width, 0, imaging.NearestNeighbor)
 	b := img.Bounds()
+	imageWidth := b.Max.X
+	h := b.Max.Y
 	str := strings.Builder{}
 
-	for y := b.Min.Y; y < b.Max.Y; y += 2 {
-		for x := b.Min.X; x < b.Max.X; x++ {
-			// Top pixel → foreground
-			c1, _ := colorful.MakeColor(img.At(x, y))
-			fgColor := lipgloss.Color(c1.Hex())
-
-			// Bottom pixel → background
-			bgHex := "#000000"
-			if y+1 < b.Max.Y {
-				c2, _ := colorful.MakeColor(img.At(x, y+1))
-				bgHex = c2.Hex()
-			}
-			bgColor := lipgloss.Color(bgHex)
-
-			str.WriteString(lipgloss.NewStyle().
-				Foreground(fgColor).
-				Background(bgColor).
-				Render("▀"))
+	for heightCounter := 0; heightCounter < h; heightCounter += 2 {
+		for x := imageWidth; x < width; x += 2 {
+			str.WriteString(" ")
 		}
+
+		for x := 0; x < imageWidth; x++ {
+			c1, _ := colorful.MakeColor(img.At(x, heightCounter))
+			color1 := lipgloss.Color(c1.Hex())
+			c2, _ := colorful.MakeColor(img.At(x, heightCounter+1))
+			color2 := lipgloss.Color(c2.Hex())
+			str.WriteString(lipgloss.NewStyle().Foreground(color1).
+				Background(color2).Render("▀"))
+		}
+
 		str.WriteString("\n")
 	}
 

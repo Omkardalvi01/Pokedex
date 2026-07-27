@@ -27,8 +27,6 @@ func RenderImg(img_body io.Reader) image.Image {
 	}
 
 	return img
-	// _ = rasterm.KittyWriteImage(os.Stdout, img, rasterm.KittyImgOpts{DstCols: 20, DstRows: 10})
-	// fmt.Println()
 
 }
 
@@ -87,38 +85,4 @@ func main() {
 		os.Exit(1)
 	}
 
-	// RenderImg(front_img.Body, "front.png")
-	// RenderImg(back_img.Body, "back.png")
-
-	// fmt.Printf("Name: %s\n", pokemon.Name)
-
-	// fmt.Printf("Physical:\n")
-	// fmt.Printf("\t- Height: %d\n", pokemon.Height)
-	// fmt.Printf("\t- Weight: %d\n", pokemon.Weight)
-
-	// fmt.Println("Types")
-	// for _, Type := range pokemon.Types {
-	// 	fmt.Printf("\t- %s\n", Type.Details.Name)
-	// }
-
-	// fmt.Println("Abilities")
-	// for _, ability := range pokemon.Abilities {
-	// 	fmt.Printf("\t- %s\n", ability.Details.Name)
-	// }
-
-	// fmt.Println("Moves")
-	// for i, move := range pokemon.MoveSet {
-	// 	if i > 5 {
-	// 		break
-	// 	}
-	// 	fmt.Printf("\t- %s\n", move.Move.Name)
-	// }
-
-	// fmt.Println("Stat")
-	// for i, stat := range pokemon.Stats {
-	// 	if i > 5 {
-	// 		break
-	// 	}
-	// 	fmt.Printf("\t- %s:%d\n", stat.Stat.Name, stat.Base)
-	// }
 }
