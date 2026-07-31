@@ -24,7 +24,7 @@ To run this project, do the following:
 
 * Enter - Search pokemon from search
 * Tab - Switch to shiny 
-* Ctrl + C - Exit
+* Ctrl + C, Esc - Exit
 
 ## Libraries Used
 
